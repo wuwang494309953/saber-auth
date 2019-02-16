@@ -40,6 +40,7 @@
     methods: {
       _submit () {
         this.isSubmit = true
+        this.$router.push('/main')
         // login(this.form).then((res) => {
         //   if (res.ret) {
         //     this.isSubmit = false
@@ -62,8 +63,10 @@
   }
 </script>
 
-<style lang="stylus" scoped>
-  @import './main.css'
+<style scoped src="./main.css" >
+</style>
+
+<style scoped lang="stylus">
   h1
     color: #fff
 </style>
