@@ -21,7 +21,8 @@
             text-color="#fff"
             active-text-color="#ffd04b"
             style="border-right: none;">
-            <el-submenu v-for="item in slideData" :key="item.name" v-if="item.children" :index="item.path">
+            <template v-for="item in slideData" :index="item.path">
+              <el-submenu :key="item.name" v-if="item.children" :index="item.path">
               <template slot="title">
                 <i :class="item.icon"></i>
                 <span>{{item.name}}</span>
@@ -32,10 +33,11 @@
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>
-            <el-menu-item v-else :index="item.path">
+            <el-menu-item v-else :key="item.name" :index="item.path">
               <i class="el-icon-menu"></i>
               <span slot="title">{{item.name}}</span>
             </el-menu-item>
+            </template>
           </el-menu>
         </el-aside>
         <el-main>
@@ -99,6 +101,9 @@ export default {
         }
       ]
     }
+  },
+  computed: {
+    
   },
   methods: {
     changeNav () {

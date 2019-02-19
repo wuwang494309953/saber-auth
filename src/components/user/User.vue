@@ -5,7 +5,7 @@
                 <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
                 <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
                 <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-                <el-col :span="6">
+                <el-col :span="3">
                     <el-switch
                       v-model="isTableShow"
                       active-text="列表展示"
@@ -13,6 +13,10 @@
                       inactive-color="#ff4949"
                     >
                     </el-switch>
+                    
+                </el-col>
+                <el-col :span="3" style="text-align: right;">
+                    <el-button type="primary" round style="margin-left:30px;" @click="_addUser">新增用户</el-button>
                 </el-col>
             </el-row>
         </div>
@@ -22,7 +26,8 @@
                     v-if="isTableShow"
                     v-bind:total="total"
                     v-bind:tableData="tableData"
-                    @refresh="_refreshTableData"/>
+                    @refresh="_refreshTableData"
+                    ref="tableShow"/>
                 <CardShow v-else/>
             </transition>
         </div>
@@ -57,8 +62,8 @@ export default {
             this.tableLoading = true
             getUsers(this.queryParams).then((res) => {
                 if (res.code == 0) {
-                this.total = res.data.total
-                this.tableData = res.data.data
+                    this.total = res.data.total
+                    this.tableData = res.data.data
                 }
                 this.tableLoading = false
             }).catch(() => {
@@ -69,6 +74,9 @@ export default {
             this.queryParams.sortKey = sortKey
             this.queryParams.sortValue = sortValue
             this._getUsers()
+        },
+        _addUser () {
+            this.$refs.tableShow._handleAdd()
         }
     },
     created () {
