@@ -107,7 +107,7 @@ export default {
     props: {
         total: Number,
         tableData: Array,
-        tableLoading: true
+        tableLoading: Boolean
     },
     data () {
         return {
@@ -162,7 +162,7 @@ export default {
                    this.deptOption = res.data.data
                 }
                 this.deptLoading = false
-            }).catch((e) => {
+            }).catch(() => {
                this.deptLoading = false
             })
         }

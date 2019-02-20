@@ -5,6 +5,7 @@ import Main from '@/components/main/Main'
 import User from '@/components/user/User'
 import Role from '@/components/role/Role'
 import Acl from '@/components/acl/Acl'
+import Dept from '@/components/dept/Dept'
 
 Vue.use(Router)
 
@@ -37,6 +38,11 @@ export default new Router({
           path: '/acl',
           name: 'acl',
           component: Acl
+        },
+        {
+          path: '/dept',
+          name: 'dept',
+          component: Dept
         }
       ]
     },

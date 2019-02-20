@@ -24,8 +24,9 @@
             <transition name="slide-fade" mode="out-in">
                 <TableShow 
                     v-if="isTableShow"
-                    v-bind:total="total"
-                    v-bind:tableData="tableData"
+                    :total="total"
+                    :tableData="tableData"
+                    :tableLoading="tableLoading"
                     @refresh="_refreshTableData"
                     ref="tableShow"/>
                 <CardShow v-else/>

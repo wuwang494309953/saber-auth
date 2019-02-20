@@ -20,7 +20,8 @@
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b"
-            style="border-right: none;">
+            style="border-right: none;"
+            @select="_handleNavMenu">
             <template v-for="item in slideData" :index="item.path">
               <el-submenu :key="item.name" v-if="item.children" :index="item.path">
               <template slot="title">
@@ -43,8 +44,9 @@
         <el-main>
           <div class="breadcrumb-area">
               <el-breadcrumb separator-class="el-icon-arrow-right">
-                  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                  <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
+                <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" :to="item">{{item.name}}</el-breadcrumb-item>
+                  <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
+                  <!-- <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item> -->
               </el-breadcrumb>
           </div>
           <router-view />
@@ -78,9 +80,13 @@ export default {
         },
         {
           name: '权限管理',
-          path: '/user',
+          path: '/main',
           icon: 'el-icon-menu',
           children: [
+            {
+              name: '部门管理',
+              path: '/dept'
+            },
             {
               name: '用户管理',
               path: '/user'
@@ -99,16 +105,39 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      pathNameMap: {
+        '/index': '子菜单1',
+        '/main': '权限管理',
+        '/dept': '部门管理',
+        '/user': '用户管理',
+        '/role': '角色管理',
+        '/acl': '权限管理'
+      },
+      breadcrumbArr: ['/main', '/user']
     }
   },
   computed: {
-    
+    breadcrumbs () {
+      var result = new Array();
+      // var breadcrumbArr = this.breadcrumbStr.split(',')
+      this.breadcrumbArr.forEach(path => {
+        let item = {
+          name: this.pathNameMap[path],
+          path: path
+        }
+        result.push(item)
+      })
+      return result
+    }
   },
   methods: {
     changeNav () {
       this.isCollapse = !this.isCollapse
       this.roz = this.isCollapse ? 'rotateZ(-90deg)' : 'rotateZ(0deg)'
+    },
+    _handleNavMenu (index, indexPath) {
+      this.breadcrumbArr = indexPath
     }
   }
 }

@@ -14,3 +14,15 @@ export function getFootDept (deptName) {
       }
     })
 }
+
+export function getDepts (params) {
+  const url = '/v1/dept/list'
+  // const data = {}
+  return axios.get(url, {
+      params: params
+  }).then((res) => {
+    if (res.data) {
+      return Promise.resolve(res.data)
+    }
+  })
+}
