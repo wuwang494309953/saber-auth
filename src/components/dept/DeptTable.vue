@@ -50,8 +50,8 @@
                     :props="defaultProps"
                     node-key="id"
                     :change-on-select="true"
-                > -->
-                </el-cascader>
+                > 
+                </el-cascader>-->
                 </el-form-item>
                 <el-form-item label="展示顺序" :label-width="formLabelWidth">
                 <el-input v-model="form.seq" placeholder="请输入展示顺序"></el-input>
@@ -70,6 +70,7 @@
 
 <script>
 import {format} from '@/util/DateUtil.js'
+import {getDeptOptions} from '@/api/dept.js'
 export default {
     props: {
         total: Number,
@@ -99,12 +100,23 @@ export default {
             }
             this.$emit('refresh', column.prop, orderV)
         },
-        _dateFormatter (row, column, cellValue, index) {
+        _dateFormatter (row, column, cellValue) {
             return format(new Date(cellValue), 'yyyy-MM-dd')
         },
         _submit () {
 
+        },
+        _handleAdd () {
+            this.dialogFormVisible = true
+        },
+        _getDeptOptions (parentId) {
+            getDeptOptions(parentId).then(res => {
+                console.log(res)
+            })
         }
+    },
+    created () {
+        this._getDeptOptions()
     }
 }
 </script>

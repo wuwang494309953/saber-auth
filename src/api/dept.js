@@ -26,3 +26,16 @@ export function getDepts (params) {
     }
   })
 }
+
+export function getDeptOptions (parentId) {
+  let url = '/v1/dept/parent'
+  if (parentId) {
+    url = url + '/' + parentId
+  }
+  // const data = {}
+  return axios.get(url).then((res) => {
+    if (res.data) {
+      return Promise.resolve(res.data)
+    }
+  })
+}

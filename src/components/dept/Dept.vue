@@ -16,7 +16,8 @@
               :total="total"
               :tableData="tableData"
               :tableLoading="tableLoading"
-              @refresh="_refreshTableData">
+              @refresh="_refreshTableData"
+              ref="tableShow">
             </DeptTable>
           </transition>
         </div>
@@ -34,8 +35,7 @@ export default {
       tableLoading: true,
       queryParams: {
           name: ''
-      },
-      dialogFormVisible: false
+      }
     }
   },
   methods: {
@@ -57,7 +57,7 @@ export default {
       this._getDepts()
     },
     _handleAdd () {
-      this.dialogFormVisible = true
+      this.$refs.tableShow._handleAdd()
     }
   },
   created () {
