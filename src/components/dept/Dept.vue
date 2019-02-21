@@ -6,7 +6,7 @@
                 <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
                 <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
                 <el-col :span="6" style="text-align: right;">
-                    <el-button type="primary" round style="margin-left:30px;">新增部门</el-button>
+                    <el-button type="primary" round style="margin-left:30px;" @click="_handleAdd">新增部门</el-button>
                 </el-col>
             </el-row>
         </div>
@@ -34,7 +34,8 @@ export default {
       tableLoading: true,
       queryParams: {
           name: ''
-      }
+      },
+      dialogFormVisible: false
     }
   },
   methods: {
@@ -54,6 +55,9 @@ export default {
       this.queryParams.sortKey = sortKey
       this.queryParams.sortValue = sortValue
       this._getDepts()
+    },
+    _handleAdd () {
+      this.dialogFormVisible = true
     }
   },
   created () {
