@@ -44,14 +44,15 @@
                 <el-input v-model="form.name" placeholder="请输入部门名称"></el-input>
                 </el-form-item>
                 <el-form-item label="所属部门" :label-width="formLabelWidth">
-                <!-- <el-cascader
+                <el-cascader
                     v-model="cascaderSelectArr"
-                    :options="selectDept"
+                    :options="deptOptionsComputed"
                     :props="defaultProps"
-                    node-key="id"
-                    :change-on-select="true"
+                    expand-trigger="hover"
+                    node-key="deptId"
+                    @active-item-change="_handleDeptChange"
                 > 
-                </el-cascader>-->
+                </el-cascader>
                 </el-form-item>
                 <el-form-item label="展示顺序" :label-width="formLabelWidth">
                 <el-input v-model="form.seq" placeholder="请输入展示顺序"></el-input>
@@ -87,7 +88,26 @@ export default {
                 parentId: '',
                 seq: '',
                 remark: ''
-            }
+            },
+            cascaderSelectArr: [],
+            defaultProps: {
+                value: 'deptId',
+                label: 'name',
+                children: 'child'
+            },
+            deptOptions: [],
+            deptFunction: {}
+        }
+    },
+    computed: {
+        deptOptionsComputed () {
+            this.deptOptions.forEach(deptOption => {
+                if(deptOption.hasChild) {
+                    deptOption.child = new Array()
+                    this.deptFunction[deptOption.deptId] = deptOption
+                }
+            })
+            return this.deptOptions;
         }
     },
     methods: {
@@ -111,7 +131,18 @@ export default {
         },
         _getDeptOptions (parentId) {
             getDeptOptions(parentId).then(res => {
-                console.log(res)
+                if (res.code == 0) {
+                    this.deptOptions = res.data
+                }
+            })
+        },
+        _handleDeptChange (v1) {
+            var deptOption = this.deptFunction[v1]
+            getDeptOptions(deptOption.deptId).then(res => {
+                if (res.code == 0) {
+                    deptOption.child = res.data
+                    console.log(deptOption)
+                }
             })
         }
     },
