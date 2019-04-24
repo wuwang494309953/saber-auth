@@ -46,9 +46,10 @@
                 <el-form-item label="所属部门" :label-width="formLabelWidth">
                 <el-cascader
                     v-model="cascaderSelectArr"
-                    :options="deptOptionsComputed"
+                    :options="deptOptions"
                     :props="defaultProps"
                     expand-trigger="hover"
+                    :show-all-levels="false"
                     node-key="deptId"
                     @active-item-change="_handleDeptChange"
                 > 
@@ -71,7 +72,7 @@
 
 <script>
 import {format} from '@/util/DateUtil.js'
-import {getDeptOptions} from '@/api/dept.js'
+import {getDeptOptions, addDept} from '@/api/dept.js'
 export default {
     props: {
         total: Number,
@@ -83,7 +84,7 @@ export default {
             formLabelWidth: '120px',
             dialogFormVisible: false,
             form: {
-                id: '',
+                deptId: '',
                 name: '',
                 parentId: '',
                 seq: '',
@@ -95,19 +96,13 @@ export default {
                 label: 'name',
                 children: 'child'
             },
-            deptOptions: [],
-            deptFunction: {}
-        }
-    },
-    computed: {
-        deptOptionsComputed () {
-            this.deptOptions.forEach(deptOption => {
-                if(deptOption.hasChild) {
-                    deptOption.child = new Array()
-                    this.deptFunction[deptOption.deptId] = deptOption
+            deptOptions: [
+                {
+                    deptId: 0,
+                    name: '我就是根节点'
                 }
-            })
-            return this.deptOptions;
+            ],
+            deptOptionsMap: {}
         }
     },
     methods: {
@@ -123,8 +118,22 @@ export default {
         _dateFormatter (row, column, cellValue) {
             return format(new Date(cellValue), 'yyyy-MM-dd')
         },
+        _getDepts () {
+            this.$emit('refresh')
+        },
         _submit () {
-
+            addDept(this.form).then(res => {
+                if (res.code == 0) {
+                    this.$message.success(res.msg)
+                    this._getDepts()
+                } else {
+                    this.$message.error('保存出现了一个问题。')
+                }
+            }).catch(e => {
+                this.$message.error('保存发生了一个异常。')
+                console.log(e)
+            })
+            this.dialogFormVisible = false
         },
         _handleAdd () {
             this.dialogFormVisible = true
@@ -132,16 +141,35 @@ export default {
         _getDeptOptions (parentId) {
             getDeptOptions(parentId).then(res => {
                 if (res.code == 0) {
-                    this.deptOptions = res.data
+                    res.data.forEach(obj => {
+                        if (obj.hasChild == 1) {
+                            obj.child = new Array()
+                        }
+                    })
+                    this.deptOptions = this.deptOptions.concat(res.data)
+                    this._refreshMap(this.deptOptions)
                 }
             })
         },
-        _handleDeptChange (v1) {
-            var deptOption = this.deptFunction[v1]
+        _handleDeptChange (val) {
+            var deptOption = this.deptOptionsMap[val[val.length - 1]]
             getDeptOptions(deptOption.deptId).then(res => {
                 if (res.code == 0) {
+                    res.data.forEach(obj => {
+                        if (obj.hasChild == 1) {
+                            obj.child = new Array()
+                        }
+                    })
                     deptOption.child = res.data
-                    console.log(deptOption)
+                    this._refreshMap(this.deptOptions)
+                }
+            })
+        },
+        _refreshMap (deptOptions) {
+            deptOptions.forEach(deptOption => {
+                this.deptOptionsMap[deptOption.deptId] = deptOption
+                if (deptOption.hasChild == 1 && deptOption.child.length > 0) {
+                    this._refreshMap(deptOption.child)
                 }
             })
         }

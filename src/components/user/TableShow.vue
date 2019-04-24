@@ -61,6 +61,18 @@
                     </template>
                 </el-table-column>
             </el-table>
+
+            <div style="margin-top: 15px;">
+                <el-pagination
+                @size-change="_handleSizeChange"
+                @current-change="_handleCurrentChange"
+                :current-page="pageParam.pageNum"
+                :page-sizes="[10, 20, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+                </el-pagination>
+            </div>
         </el-card>
 
         <el-dialog title="用户管理" :visible.sync="dialogFormVisible">
@@ -103,6 +115,7 @@
 
 <script>
 import {getFootDept} from '@/api/dept.js'
+import {saveUser, delUser} from '@/api/user.js'
 export default {
     props: {
         total: Number,
@@ -114,7 +127,7 @@ export default {
             dialogFormVisible: false,
             formLabelWidth: '120px',
             form: {
-                id: '',
+                userId: '',
                 username: '',
                 telephone: '',
                 mail: '',
@@ -130,7 +143,13 @@ export default {
             }, {
                 value: 1,
                 label: '启用'
-            }]
+            }],
+            pageParam: {
+                pageNum: 1,
+                pageSize: 10,
+                sortKey: '',
+                sortValue: ''
+            }
         }
     },
     methods: {
@@ -141,19 +160,62 @@ export default {
             } else {
                 orderV = 'desc'
             }
-            this.$emit('refresh', column.prop, orderV)
-            // this._getUsers()
+            this.pageParam.sortKey = column.prop
+            this.pageParam.sortValue = orderV
+            // this.$emit('refresh', column.prop, orderV)
+            this._getUsers()
+        },
+        _getUsers () {
+            this.$emit('refresh', this.pageParam)
         },
         _handleEdit (index, row) {
             this.dialogFormVisible = true
             this.form = row
         },
         _submit () {
-            console.log(this.form)
+            saveUser(this.form).then(res => {
+                if (res.code == 0) {
+                    this.$message.success(res.msg)
+                    this._getUsers()
+                } else {
+                    this.$message.error('保存出现了一个问题。')
+                }
+            }).catch((e) => {
+                this.$message.error('保存发生了一个异常。')
+                console.log(e)
+            })
+            this.dialogFormVisible = false
         },
         _handleAdd () {
             this.dialogFormVisible = true
             this.form = {}
+        },
+        _handleDelete (index, row) {
+            this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                delUser(row.userId).then(res => {
+                    if (res.code == 0) {
+                        this.$message.success(res.msg)
+                        this._getUsers()
+                    } else {
+                        this.$message.error(res.msg)
+                    }
+                }).catch((e) => {
+                    this.$message.error('删除用户时出现了一个错误!')
+                    console.log(e)
+                })
+            }).catch(() => {})
+        },
+        _handleSizeChange(size) {
+            this.pageParam.pageSize = size
+            this._getUsers()
+        },
+        _handleCurrentChange(index) {
+            this.pageParam.pageNum = index
+            this._getUsers()
         },
         _getDeptData (query) {
             this.deptLoading = true

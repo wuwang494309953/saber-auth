@@ -39,3 +39,18 @@ export function getDeptOptions (parentId) {
     }
   })
 }
+
+export function addDept (params) {
+  let url = '/v1/dept/save'
+  return axios({
+    method: 'post',
+    url: url,
+    params: params
+  }).then((res) => {
+    if (res.data) {
+      return Promise.resolve(res.data)
+    }
+  }).catch((erroe) => {
+    return Promise.reject(erroe)
+  })
+}

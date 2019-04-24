@@ -2,9 +2,22 @@
     <div>
         <div class="query-area">
             <el-row :gutter="20">
-                <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-                <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-                <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+                <el-col :span="18">
+                   <el-form :inline="true" :model="queryParams">
+                        <el-form-item label="姓名:">
+                            <el-input v-model="queryParams.username" placeholder="姓名"></el-input>
+                        </el-form-item>
+                        <el-form-item label="电话:">
+                            <el-input v-model="queryParams.telephone" placeholder="电话"></el-input>
+                        </el-form-item>
+                        <el-form-item label="邮箱:">
+                            <el-input v-model="queryParams.mail" placeholder="邮箱"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="_getUsers">查询</el-button>
+                        </el-form-item>
+                   </el-form>
+                </el-col>
                 <el-col :span="3">
                     <el-switch
                       v-model="isTableShow"
@@ -51,7 +64,7 @@ export default {
                 username: '',
                 telephone: '',
                 mail: '',
-                pageIndex: 0,
+                pageNum: 0,
                 pageSize: 10,
                 sortKey: '',
                 sortValue: ''
@@ -71,9 +84,11 @@ export default {
                 this.tableLoading = false
             })
         },
-        _refreshTableData (sortKey, sortValue) {
-            this.queryParams.sortKey = sortKey
-            this.queryParams.sortValue = sortValue
+        _refreshTableData (pageParam) {
+            this.queryParams.sortKey = pageParam.sortKey
+            this.queryParams.sortValue = pageParam.sortValue
+            this.queryParams.pageNum = pageParam.pageNum
+            this.queryParams.pageSize = pageParam.pageSize
             this._getUsers()
         },
         _addUser () {
