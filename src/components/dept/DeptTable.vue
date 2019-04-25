@@ -155,11 +155,13 @@ export default {
             this.dialogFormVisible = false
         },
         _handleAdd () {
+            this.form = {}
+            this.cascaderSelectArr = new Array()
             this.dialogFormVisible = true
         },
         _handleEdit (index, row) {
-            this.dialogFormVisible = true
             this.form = row
+            this.dialogFormVisible = true
         },
         _handleDelete (index, row) {
             this.$confirm('此操作将永久删除该部门, 是否继续?', '提示', {
