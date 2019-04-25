@@ -54,3 +54,20 @@ export function addDept (params) {
     return Promise.reject(erroe)
   })
 }
+
+export function delDept (deptId) {
+  let url = '/v1/dept/del'
+  return axios({
+    method: 'post',
+    url: url,
+    params: {
+      deptId: deptId
+    }
+  }).then((res) => {
+    if (res.data) {
+      return Promise.resolve(res.data)
+    }
+  }).catch((erroe) => {
+    return Promise.reject(erroe)
+  })
+}

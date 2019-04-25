@@ -35,6 +35,23 @@
                     prop="seq"
                     label="顺序号">
                 </el-table-column>
+                <el-table-column
+                    prop="remark"
+                    sortable="custom"
+                    label="备注">
+                    </el-table-column>
+                    <el-table-column label="操作" width="150">
+                    <template slot-scope="scope">
+                        <el-button
+                        size="mini"
+                        type="primary"
+                        @click="_handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button
+                        size="mini"
+                        type="danger"
+                        @click="_handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-card>
 
@@ -72,7 +89,7 @@
 
 <script>
 import {format} from '@/util/DateUtil.js'
-import {getDeptOptions, addDept} from '@/api/dept.js'
+import {getDeptOptions, addDept, delDept} from '@/api/dept.js'
 export default {
     props: {
         total: Number,
@@ -122,6 +139,8 @@ export default {
             this.$emit('refresh')
         },
         _submit () {
+            console.log(this.cascaderSelectArr)
+            this.form.parentId = this.cascaderSelectArr[this.cascaderSelectArr.length - 1]
             addDept(this.form).then(res => {
                 if (res.code == 0) {
                     this.$message.success(res.msg)
@@ -137,6 +156,29 @@ export default {
         },
         _handleAdd () {
             this.dialogFormVisible = true
+        },
+        _handleEdit (index, row) {
+            this.dialogFormVisible = true
+            this.form = row
+        },
+        _handleDelete (index, row) {
+            this.$confirm('此操作将永久删除该部门, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                delDept(row.deptId).then(res => {
+                    if (res.code == 0) {
+                        this.$message.success(res.msg)
+                        this._getUsers()
+                    } else {
+                        this.$message.error(res.msg)
+                    }
+                }).catch((e) => {
+                    this.$message.error('删除部门时出现了一个错误!')
+                    console.log(e)
+                })
+            }).catch(() => {})
         },
         _getDeptOptions (parentId) {
             getDeptOptions(parentId).then(res => {
