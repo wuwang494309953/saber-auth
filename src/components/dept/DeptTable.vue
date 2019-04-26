@@ -68,7 +68,7 @@
                     expand-trigger="hover"
                     :show-all-levels="false"
                     node-key="deptId"
-                    @active-item-change="_handleDeptChange"
+                    change-on-select
                 > 
                 </el-cascader>
                 </el-form-item>
@@ -89,7 +89,7 @@
 
 <script>
 import {format} from '@/util/DateUtil.js'
-import {getDeptOptions, addDept, delDept} from '@/api/dept.js'
+import {addDept, delDept, getDeptTree} from '@/api/dept.js'
 export default {
     props: {
         total: Number,
@@ -115,14 +115,34 @@ export default {
             },
             deptOptions: [
                 {
-                    deptId: 0,
+                    deptId: "0",
                     name: '我就是根节点'
                 }
-            ],
-            deptOptionsMap: {}
+            ]
+        }
+    },
+    computed: {
+        deptOptionsMap () {
+            var deptOptionsMap = new Object()
+            for (var i = 0; i < this.deptOptions.length; i++) {
+                let dept = this.deptOptions[i];
+                deptOptionsMap[dept.deptId] = dept
+                this._initDeptOptionsMap(dept, deptOptionsMap)
+            }
+            return deptOptionsMap
         }
     },
     methods: {
+        _initDeptOptionsMap (dept, deptOptionsMap) {
+            if (dept.child == null) {
+                return
+            }
+            for (var i = 0; i < dept.child.length; i++) {
+                var deptChild = dept.child[i];
+                deptOptionsMap[deptChild.deptId] = deptChild
+                this._initDeptOptionsMap(deptChild, deptOptionsMap)
+            }
+        },
         _tableSort (column) {
             var orderV = 'desc'
             if (column.order == 'ascending') {
@@ -145,6 +165,7 @@ export default {
                 if (res.code == 0) {
                     this.$message.success(res.msg)
                     this._getDepts()
+                    this._getDeptTree()
                 } else {
                     this.$message.error('保存出现了一个问题。')
                 }
@@ -160,7 +181,8 @@ export default {
             this.dialogFormVisible = true
         },
         _handleEdit (index, row) {
-            this.form = row
+            this._deptOptions(row.deptId)
+            this.form = JSON.parse(JSON.stringify(row))
             this.dialogFormVisible = true
         },
         _handleDelete (index, row) {
@@ -172,7 +194,7 @@ export default {
                 delDept(row.deptId).then(res => {
                     if (res.code == 0) {
                         this.$message.success(res.msg)
-                        this._getUsers()
+                        this._getDepts()
                     } else {
                         this.$message.error(res.msg)
                     }
@@ -182,44 +204,26 @@ export default {
                 })
             }).catch(() => {})
         },
-        _getDeptOptions (parentId) {
-            getDeptOptions(parentId).then(res => {
-                if (res.code == 0) {
-                    res.data.forEach(obj => {
-                        if (obj.hasChild == 1) {
-                            obj.child = new Array()
-                        }
-                    })
-                    this.deptOptions = this.deptOptions.concat(res.data)
-                    this._refreshMap(this.deptOptions)
-                }
+        _getDeptTree () {
+            getDeptTree().then(res => {
+                this.deptOptions = this.deptOptions.concat(res.data)
             })
         },
-        _handleDeptChange (val) {
-            var deptOption = this.deptOptionsMap[val[val.length - 1]]
-            getDeptOptions(deptOption.deptId).then(res => {
-                if (res.code == 0) {
-                    res.data.forEach(obj => {
-                        if (obj.hasChild == 1) {
-                            obj.child = new Array()
-                        }
-                    })
-                    deptOption.child = res.data
-                    this._refreshMap(this.deptOptions)
-                }
-            })
-        },
-        _refreshMap (deptOptions) {
-            deptOptions.forEach(deptOption => {
-                this.deptOptionsMap[deptOption.deptId] = deptOption
-                if (deptOption.hasChild == 1 && deptOption.child.length > 0) {
-                    this._refreshMap(deptOption.child)
-                }
-            })
+        _deptOptions(deptId) {
+            let arr = new Array()
+            while (deptId != 0) {
+                var dept = this.deptOptionsMap[deptId]  
+                deptId = dept.parentId
+                arr.unshift(deptId)
+            }
+            if (arr.length > 1) {
+                arr.shift()
+            }
+            this.cascaderSelectArr = arr
         }
     },
     created () {
-        this._getDeptOptions()
+        this._getDeptTree()
     }
 }
 </script>

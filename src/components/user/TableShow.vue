@@ -170,8 +170,8 @@ export default {
             this.$emit('refresh', this.pageParam)
         },
         _handleEdit (index, row) {
+            this.form = JSON.parse(JSON.stringify(row))
             this.dialogFormVisible = true
-            this.form = row
         },
         _submit () {
             saveUser(this.form).then(res => {
@@ -222,7 +222,7 @@ export default {
             this.deptLoading = true
             getFootDept(query).then((res) => {
                if (res.code == 0) {
-                   this.deptOption = res.data.data
+                   this.deptOption = res.data
                 }
                 this.deptLoading = false
             }).catch(() => {

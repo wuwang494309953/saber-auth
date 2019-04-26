@@ -71,3 +71,17 @@ export function delDept (deptId) {
     return Promise.reject(erroe)
   })
 }
+
+export function getDeptTree () {
+  let url = '/v1/dept/tree'
+  return axios({
+    method: 'get',
+    url: url
+  }).then((res) => {
+    if (res.data) {
+      return Promise.resolve(res.data)
+    }
+  }).catch((erroe) => {
+    return Promise.reject(erroe)
+  })
+}
