@@ -28,10 +28,6 @@
                     label="操作日期">
                 </el-table-column>
                 <el-table-column
-                    prop="remark"
-                    label="备注">
-                </el-table-column>
-                <el-table-column
                     prop="seq"
                     label="顺序号">
                 </el-table-column>
@@ -39,8 +35,8 @@
                     prop="remark"
                     sortable="custom"
                     label="备注">
-                    </el-table-column>
-                    <el-table-column label="操作" width="150">
+                </el-table-column>
+                <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
                         <el-button
                         size="mini"
@@ -54,6 +50,18 @@
                 </el-table-column>
             </el-table>
         </el-card>
+
+        <div style="margin-top: 15px;">
+            <el-pagination
+                @size-change="_handleSizeChange"
+                @current-change="_handleCurrentChange"
+                :current-page="pageParam.pageNum"
+                :page-sizes="[10, 20, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+            </el-pagination>
+        </div>
 
         <el-dialog title="部门管理" :visible.sync="dialogFormVisible">
             <el-form :model="form" style="padding-right:30%;">
@@ -83,7 +91,7 @@
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
                 <el-button type="primary" @click="_submit">确 定</el-button>
             </div>
-            </el-dialog>
+        </el-dialog>
     </div>
 </template>
 
@@ -118,7 +126,13 @@ export default {
                     deptId: "0",
                     name: '我就是根节点'
                 }
-            ]
+            ],
+            pageParam: {
+                pageNum: 1,
+                pageSize: 10,
+                sortKey: '',
+                sortValue: ''
+            }
         }
     },
     computed: {
@@ -150,16 +164,17 @@ export default {
             } else {
                 orderV = 'desc'
             }
-            this.$emit('refresh', column.prop, orderV)
+            this.pageParam.sortKey = column.prop
+            this.pageParam.sortValue = orderV
+            this._getDepts()
         },
         _dateFormatter (row, column, cellValue) {
             return format(new Date(cellValue), 'yyyy-MM-dd')
         },
         _getDepts () {
-            this.$emit('refresh')
+            this.$emit('refresh', this.pageParam)
         },
         _submit () {
-            console.log(this.cascaderSelectArr)
             this.form.parentId = this.cascaderSelectArr[this.cascaderSelectArr.length - 1]
             addDept(this.form).then(res => {
                 if (res.code == 0) {
@@ -206,6 +221,7 @@ export default {
         },
         _getDeptTree () {
             getDeptTree().then(res => {
+                this.deptOptions = [{deptId: "0", name: '我就是根节点'}]
                 this.deptOptions = this.deptOptions.concat(res.data)
             })
         },
@@ -220,7 +236,15 @@ export default {
                 arr.shift()
             }
             this.cascaderSelectArr = arr
-        }
+        },
+        _handleSizeChange(size) {
+            this.pageParam.pageSize = size
+            this._getDepts()
+        },
+        _handleCurrentChange(index) {
+            this.pageParam.pageNum = index
+            this._getDepts()
+        },
     },
     created () {
         this._getDeptTree()
