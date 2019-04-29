@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Qs from 'qs'
 
 export function getFootDept (deptName) {
     const url = '/v1/dept/foot'
@@ -45,7 +46,11 @@ export function addDept (params) {
   return axios({
     method: 'post',
     url: url,
-    params: params
+    data: params,
+    transformRequest: [function (data) {
+      data = Qs.stringify(data)
+      return data
+    }]
   }).then((res) => {
     if (res.data) {
       return Promise.resolve(res.data)

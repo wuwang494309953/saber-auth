@@ -37,7 +37,7 @@ export function getRoles (params) {
       method: 'post',
       url: url,
       params: {
-        userId: roleId
+        roleId: roleId
       }
     }).then((res) => {
       if (res.data) {

@@ -49,42 +49,42 @@
                     </template>
                 </el-table-column>
             </el-table>
-        </el-card>
 
-        <div style="margin-top: 15px;">
-            <el-pagination
-                @size-change="_handleSizeChange"
-                @current-change="_handleCurrentChange"
-                :current-page="pageParam.pageNum"
-                :page-sizes="[10, 20, 50, 100]"
-                :page-size="10"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-            </el-pagination>
-        </div>
+            <div style="margin-top: 15px;">
+                <el-pagination
+                    @size-change="_handleSizeChange"
+                    @current-change="_handleCurrentChange"
+                    :current-page="pageParam.pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="10"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+                </el-pagination>
+            </div>
+        </el-card>
 
         <el-dialog title="部门管理" :visible.sync="dialogFormVisible">
             <el-form :model="form" style="padding-right:30%;">
                 <el-form-item label="部门名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" placeholder="请输入部门名称"></el-input>
+                    <el-input v-model="form.name" placeholder="请输入部门名称"></el-input>
                 </el-form-item>
                 <el-form-item label="所属部门" :label-width="formLabelWidth">
-                <el-cascader
-                    v-model="cascaderSelectArr"
-                    :options="deptOptions"
-                    :props="defaultProps"
-                    expand-trigger="hover"
-                    :show-all-levels="false"
-                    node-key="deptId"
-                    change-on-select
-                > 
+                    <el-cascader
+                        v-model="cascaderSelectArr"
+                        :options="deptOptions"
+                        :props="defaultProps"
+                        expand-trigger="hover"
+                        :show-all-levels="false"
+                        node-key="deptId"
+                        change-on-select
+                    > 
                 </el-cascader>
                 </el-form-item>
                 <el-form-item label="展示顺序" :label-width="formLabelWidth">
-                <el-input v-model="form.seq" placeholder="请输入展示顺序"></el-input>
+                    <el-input v-model="form.seq" placeholder="请输入展示顺序"></el-input>
                 </el-form-item>
                 <el-form-item label="备注" :label-width="formLabelWidth">
-                <el-input v-model="form.remark" type="textarea" :row="2" placeholder="请输入备注"></el-input>
+                    <el-input v-model="form.remark" type="textarea" :row="2" placeholder="请输入备注"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">

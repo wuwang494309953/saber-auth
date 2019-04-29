@@ -13,9 +13,17 @@
                 </el-table-column>
                 <el-table-column
                     prop="name"
-                    label="姓名"
+                    label="角色名"
                     sortable="custom"
                 >
+                </el-table-column>
+                <el-table-column
+                    prop="type"
+                    sortable="custom"
+                    label="角色类别">
+                    <template slot-scope="scope">
+                        <el-tag size="medium" >{{ scope.row.type == 1 ? '管理员' : '其他' }}</el-tag>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     prop="operator"
@@ -25,11 +33,6 @@
                     prop="operateTime"
                     :formatter="_dateFormatter"
                     label="操作日期">
-                </el-table-column>
-                <el-table-column
-                    prop="remark"
-                    sortable="custom"
-                    label="备注">
                 </el-table-column>
                 <el-table-column
                     prop="status"
@@ -43,7 +46,7 @@
                     prop="remark"
                     sortable="custom"
                     label="备注">
-                    </el-table-column>
+                </el-table-column>
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
                         <el-button
@@ -57,7 +60,20 @@
                     </template>
                 </el-table-column>
             </el-table>
+
+            <div style="margin-top: 15px;">
+                <el-pagination
+                    @size-change="_handleSizeChange"
+                    @current-change="_handleCurrentChange"
+                    :current-page="pageParam.pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="10"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+                </el-pagination>
+            </div>
         </el-card>
+
         <el-dialog title="角色管理" :visible.sync="dialogFormVisible">
             <el-form :model="form" style="padding-right:30%;">
                 <el-form-item label="角色名称" :label-width="formLabelWidth">
@@ -86,7 +102,8 @@
 </template>
 
 <script>
-import {saveRole} from '@/api/role.js'
+import {format} from '@/util/DateUtil.js'
+import {saveRole, delRole} from '@/api/role.js'
 export default {
      props: {
         total: Number,
@@ -117,6 +134,12 @@ export default {
                 remark: '',
                 status: '',
                 type: ''
+            },
+            pageParam: {
+                pageNum: 1,
+                pageSize: 10,
+                sortKey: '',
+                sortValue: ''
             }
         }
     },
@@ -124,9 +147,46 @@ export default {
         _getRoles () {
             this.$emit('refresh', this.pageParam)
         },
+        _tableSort (column) {
+            var orderV = 'desc'
+            if (column.order == 'ascending') {
+                orderV = 'asc'
+            } else {
+                orderV = 'desc'
+            }
+            this.pageParam.sortKey = column.prop
+            this.pageParam.sortValue = orderV
+            this._getRoles()
+        },
+        _dateFormatter (row, column, cellValue) {
+            return format(new Date(cellValue), 'yyyy-MM-dd')
+        },
          _handleAdd () {
             this.dialogFormVisible = true
             this.form = {}
+        },
+        _handleEdit (index, row) {
+            this.form = row
+            this.dialogFormVisible = true
+        },
+        _handleDelete (index, row) {
+            this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                delRole(row.roleId).then(res => {
+                    if (res.code == 0) {
+                        this.$message.success(res.msg)
+                        this._getRoles()
+                    } else {
+                        this.$message.error(res.msg)
+                    }
+                }).catch((e) => {
+                    this.$message.error('删除角色时出现了一个错误!')
+                    console.log(e)
+                })
+            }).catch(() => {})
         },
         _submit () {
             saveRole(this.form).then(res => {
@@ -141,6 +201,30 @@ export default {
                 console.log(e)
             })
             this.dialogFormVisible = false
+        },
+        _handleSizeChange(size) {
+            this.pageParam.pageSize = size
+            this._getRoles()
+        },
+        _handleCurrentChange(index) {
+            this.pageParam.pageNum = index
+            this._getRoles()
+        }
+    },
+    filters: {
+        statusType (value) {
+            if (value >= 0 && value < 3) {
+                let types = ['停用', '启用']
+                return types[value]
+            } else {
+                return '状态错误'
+            }
+        },
+        statusTag (value) {
+            if (value >= 0 && value < 2) {
+                let types = ['warning', '']
+                return types[value]
+            }
         }
     }
 }

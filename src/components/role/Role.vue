@@ -4,17 +4,14 @@
             <el-row :gutter="20">
                 <el-col :span="18">
                    <el-form :inline="true" :model="queryParams">
-                        <el-form-item label="姓名:">
-                            <el-input  placeholder="姓名"></el-input>
+                        <el-form-item label="角色名称:">
+                            <el-input v-model="queryParams.name" placeholder="角色名称"></el-input>
                         </el-form-item>
-                        <el-form-item label="电话:">
-                            <el-input  placeholder="电话"></el-input>
-                        </el-form-item>
-                        <el-form-item label="邮箱:">
-                            <el-input  placeholder="邮箱"></el-input>
+                        <el-form-item label="备注:">
+                            <el-input v-model="queryParams.remark" placeholder="备注"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary">查询</el-button>
+                            <el-button type="primary" @click="_getRoles">查询</el-button>
                         </el-form-item>
                    </el-form>
                 </el-col>
@@ -67,7 +64,6 @@ export default {
                 if (res.code == 0) {
                     this.total = res.data.total
                     this.tableData = res.data.data
-                    console.log(this.tableData)
                 }
                 this.tableLoading = false
             }).catch(() => {
