@@ -152,7 +152,7 @@ export default {
                 this.data = res.data
             })
         },
-        _renderContent (h, { node, data, store }) {
+        _renderContent (h, { node, data }) {
             var removeBtn = (<span></span>)
             if (node.childNodes.length === 0) {
                 removeBtn = (
