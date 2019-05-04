@@ -190,7 +190,28 @@ export default {
             }
         }
     },
+    computed: {
+        permissionOptionsMap () {
+            var permissionOptionsMap = new Object()
+            for (var i = 0; i < this.selectAclModule.length; i++) {
+                let acl = this.selectAclModule[i];
+                permissionOptionsMap[acl.permissionModuleId] = acl
+                this._initAclOptionsMap(acl, permissionOptionsMap)
+            }
+            return permissionOptionsMap
+        }
+    },
     methods: {
+        _initAclOptionsMap (acl, permissionOptionsMap) {
+            if (acl.child == null) {
+                return
+            }
+            for (var i = 0; i < acl.child.length; i++) {
+                var aclChild = acl.child[i];
+                permissionOptionsMap[aclChild.permissionModuleId] = aclChild
+                this._initAclOptionsMap(aclChild, permissionOptionsMap)
+            }
+        },
         _tableSort (column) {
             var orderV = 'desc'
             if (column.order == 'ascending') {
@@ -208,7 +229,14 @@ export default {
             this.cascaderSelectArr = [0]
         },
         _handleEdit (index, row) {
-            this.form.permissionModuleId = row.pe
+            this._aclOptions(row.permissionModuleId)
+            this.form.permissionId = row.permissionId
+            this.form.name = row.name
+            this.form.url = row.url
+            this.form.type = row.type
+            this.form.status = row.status
+            this.form.seq = row.seq
+            this.form.remark = row.remark
             this.dialogFormVisible = true
         },
         _handleDelete (index, row) {
@@ -267,6 +295,20 @@ export default {
         _handleCurrentChange(index) {
             this.pageParam.pageNum = index
             this._getPermissions()
+        },
+        _aclOptions(aclModuleId) {
+            let arr = new Array()
+            arr.unshift(aclModuleId)
+            while (aclModuleId != 0) {
+                var acl = this.permissionOptionsMap[aclModuleId]  
+                aclModuleId = acl.parentId
+                arr.unshift(aclModuleId)
+            }
+            if (arr.length > 1) {
+                arr.shift()
+            }
+            this.cascaderSelectArr = arr
+            console.log(this.cascaderSelectArr)
         },
     },
     filters: {
